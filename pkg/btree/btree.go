@@ -1,7 +1,6 @@
-package main
+package btree
 
 import (
-	"fmt"
 
     "github.com/google/btree"
 )
@@ -41,8 +40,4 @@ func (s *Store) Get(key string) (value interface{}, ok bool) {
 
 func (s *Store) Delete(key string) {
     s.tree.Delete(Item{key: key})
-}
-
-func main() {
-	fmt.Println("init")
 }
