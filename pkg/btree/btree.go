@@ -6,12 +6,12 @@ import (
 )
 
 type Item struct {
-    key string
-    value interface{}
+    Key string
+    Value interface{}
 }
 
 func (i Item) Less(than btree.Item) bool {
-    return i.key < than.(Item).key
+    return i.Key < than.(Item).Key
 }
 
 type Store struct {
@@ -24,20 +24,20 @@ func NewStore(degree int) *Store {
     }
 }
 
-func (s *Store) Put(key string, value interface{}) {
-    item := Item {key: key, value: value}
+func (s *Store) Put(Key string, Value interface{}) {
+    item := Item {Key: Key, Value: Value}
     s.tree.ReplaceOrInsert(item)
 }
 
-func (s *Store) Get(key string) (value interface{}, ok bool) {
-    item := s.tree.Get(Item{key: key})
+func (s *Store) Get(Key string) (Value interface{}, ok bool) {
+    item := s.tree.Get(Item{Key: Key})
     if item != nil {
-        return item.(Item).value, true
+        return item.(Item).Value, true
     }
 
     return nil, false
 }
 
-func (s *Store) Delete(key string) {
-    s.tree.Delete(Item{key: key})
+func (s *Store) Delete(Key string) {
+    s.tree.Delete(Item{Key: Key})
 }
