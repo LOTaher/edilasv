@@ -1,21 +1,19 @@
 package http
 
 import (
-    "net/http"
-    "log"
-
+	"log"
+	"net/http"
 )
 
 func StartServer() {
-    mux := http.NewServeMux()
+	mux := http.NewServeMux()
 
-    server := http.Server {
-        Addr: ":69420",
-        Handler: mux,
-    }
+	server := http.Server{
+		Addr:    ":69420",
+		Handler: mux,
+	}
 
+	log.Println("Serving SoftBase on http://localhost:69420")
 
-    log.Println("Serving SoftBase on http://localhost:69420")
-
-    log.Fatal(server.ListenAndServe())
+	log.Fatal(server.ListenAndServe())
 }
