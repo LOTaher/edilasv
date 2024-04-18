@@ -1,82 +1,69 @@
 package http
 
 import (
-	"encoding/json"
-	"log"
-	"net/http"
+    "encoding/json"
+    "net/http"
 
-	"github.com/LOTaher/softbase/pkg/btree"
+    "github.com/LOTaher/softbase/pkg/btree"
+    "github.com/LOTaher/softbase/pkg/storage"
 )
 
-type Handler struct{}
+type Handler struct {
+    Db storage.Database
+}
+
+func NewHandler(db storage.Database) *Handler {
+    return &Handler{db}
+}
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
-	var item btree.Item
-
-	// Need to find a way to pass the user's db to the handler
-	// Finding the db should be in the start server function
-	var db btree.Store
-
-	err := json.NewDecoder(r.Body).Decode(&item)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	db.Insert(item.Key, item.Value)
+    var item btree.Item
+    err := json.NewDecoder(r.Body).Decode(&item)
+    if err != nil {
+        http.Error(w, "Invalid request body", http.StatusBadRequest)
+        return
+    }
+    h.Db.AddItem(item.Key, item.Value)
+    w.WriteHeader(http.StatusCreated)
 }
 
 func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
-	var item btree.Item
+    var item btree.Item
+    err := json.NewDecoder(r.Body).Decode(&item)
+    if err != nil {
+        http.Error(w, "Invalid request body", http.StatusBadRequest)
+        return
+    }
 
-	var db btree.Store
+    value, ok := h.Db.GetItem(item.Key)
+    if !ok {
+        http.Error(w, "Item not found", http.StatusNotFound)
+        return
+    }
 
-	err := json.NewDecoder(r.Body).Decode(&item)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	value, false := db.Get(item.Key)
-	if false {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(value)
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+    json.NewEncoder(w).Encode(value)
 }
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	var item btree.Item
-
-	var db btree.Store
-
-	err := json.NewDecoder(r.Body).Decode(&item)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	db.Delete(item.Key)
+    var item btree.Item
+    err := json.NewDecoder(r.Body).Decode(&item)
+    if err != nil {
+        http.Error(w, "Invalid request body", http.StatusBadRequest)
+        return
+    }
+    h.Db.DeleteItem(item.Key)
+    w.WriteHeader(http.StatusOK)
 }
 
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
-	var item btree.Item
-
-	var db btree.Store
-
-	err := json.NewDecoder(r.Body).Decode(&item)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	db.Update(item.Key, item.Value)
+    var item btree.Item
+    err := json.NewDecoder(r.Body).Decode(&item)
+    if err != nil {
+        http.Error(w, "Invalid request body", http.StatusBadRequest)
+        return
+    }
+    h.Db.UpdateItem(item.Key, item.Value)
+    w.WriteHeader(http.StatusOK)
 }

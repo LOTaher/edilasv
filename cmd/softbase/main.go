@@ -2,18 +2,15 @@ package main
 
 import (
 	"fmt"
-    
-    "github.com/LOTaher/softbase/pkg/btree"
+
+    "github.com/fatih/color"
 )
 
 func main() {
-    fmt.Println("Now serving SoftBase...")
-    store := btree.NewStore(50)
-
-    store.Put("key1", "value1")
-
-    value, ok := store.Get("key1")
-    if ok {
-        fmt.Println("key1:", value)
-    }
+    fmt.Print("∘˙○˚.•\n")
+    started := color.New(color.FgCyan, color.Bold)
+    started.Printf("> Server started at %s\n", "http://localhost:8080")
+    fmt.Printf("  - REST API: %s\n", "http://localhost:8080/api/")
+    fmt.Printf("  - Admin Panel: %s\n", "http://localhost:8080/")
+    fmt.Println("∘˙○˚.•")
 }
