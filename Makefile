@@ -1,11 +1,13 @@
 BINARY_NAME=softbase
 
-CMD_DIR=./cmd/$(BINARY_NAME)
+BASE_DIR=./examples/base
+
+MAIN_DIR=$(BASE_DIR)/main.go
 
 all: build
 
 build:
-	go build -o $(BINARY_NAME) $(CMD_DIR)
+	go build -o $(BINARY_NAME) $(MAIN_DIR)
 
 run: build
 	./$(BINARY_NAME)
