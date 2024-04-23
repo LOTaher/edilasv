@@ -2,9 +2,9 @@ package softbase
 
 import (
 	"os"
-    "os/signal"
+	"os/signal"
 	"path/filepath"
-    "syscall"
+	"syscall"
 
 	"github.com/LOTaher/softbase/cmd"
 	"github.com/LOTaher/softbase/core"
@@ -21,6 +21,7 @@ type appWrapper struct {
 type SoftBase struct {
 	*appWrapper
 	RootCmd *cobra.Command
+	DB      *core.DB
 }
 
 // Creates a new SoftBase instance with the default configuration.
@@ -46,6 +47,9 @@ func (sb *SoftBase) Start() error {
 }
 
 func (sb *SoftBase) Execute() error {
+
+	sb.DB = core.InitDB(3, "db.json")
+
 	done := make(chan bool, 1)
 
 	// listen for interrupt signal to gracefully shutdown the application
@@ -65,7 +69,7 @@ func (sb *SoftBase) Execute() error {
 	}()
 
 	<-done
-    
-    // TODO, add a graceful shutdown here
-    return nil
+
+	// TODO, add a graceful shutdown here
+	return nil
 }
