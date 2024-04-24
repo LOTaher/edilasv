@@ -1,17 +1,20 @@
 package main
 
 import (
-    "log"
+	"log"
 
 	"github.com/LOTaher/softbase"
+	"github.com/LOTaher/softbase/cmd"
+    "github.com/LOTaher/softbase/core"
 )
 
 func main() {
 	app := softbase.New()
+    db := core.NewStore(2)
+	// Serve Command
+    serveCmd := cmd.Serve(db)
 
-	// Optional Plugin Flags:
-
-	if err := app.Start(); err != nil {
+	if err := app.Start(serveCmd); err != nil {
 		log.Fatal(err)
 	}
 }

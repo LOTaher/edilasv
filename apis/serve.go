@@ -6,12 +6,14 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/go-chi/cors"
+    "github.com/LOTaher/softbase/core"
+	// "github.com/go-chi/cors"
 )
 
 type ServeConfig struct {
 	AllowedOrigins []string
 	HttpAddr       string
+	DB             *core.Store
 }
 
 func Serve(config ServeConfig) (*http.Server, error) {
@@ -21,19 +23,19 @@ func Serve(config ServeConfig) (*http.Server, error) {
 
 	schema := "http"
 
-	router, err := InitApi()
+	router, err := InitAPI(config.DB)
 	if err != nil {
 		return nil, err
 	}
-
-	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins: config.AllowedOrigins,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: false,
-		MaxAge:           300, 
-	}))
+	//
+	// router.Use(cors.Handler(cors.Options{
+	// 	AllowedOrigins: config.AllowedOrigins,
+	// 	AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	// 	AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+	// 	ExposedHeaders:   []string{"Link"},
+	// 	AllowCredentials: false,
+	// 	MaxAge:           300,
+	// }))
 
 	server := &http.Server{
 		Addr:    config.HttpAddr,

@@ -1,18 +1,19 @@
 package apis
 
 import (
+	"github.com/LOTaher/softbase/core"
 	"github.com/go-chi/chi/v5"
 )
 
 // InitApi creates a configured chi router with necessary routes and middlewares
-func InitApi() (*chi.Mux, error) {
+func InitAPI(db *core.Store) (*chi.Mux, error) {
 	r := chi.NewRouter()
 
 	// Middlewares
-	// r.Use()
+    // ...
 
 	// Routes
-	r.Mount("/api", CrudApiRoutes())
+	r.Mount("/api", CrudAPIRoutes(db))
 
 	return r, nil
 }

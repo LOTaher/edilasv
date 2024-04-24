@@ -6,22 +6,14 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/LOTaher/softbase/cmd"
-	"github.com/LOTaher/softbase/core"
 	"github.com/spf13/cobra"
 )
 
 var Version = "0.0.1"
 
-type appWrapper struct {
-	core.App
-}
-
 // SoftBase defines a SoftBase application launcher.
 type SoftBase struct {
-	*appWrapper
 	RootCmd *cobra.Command
-	DB      *core.DB
 }
 
 // Creates a new SoftBase instance with the default configuration.
@@ -40,15 +32,16 @@ func New() *SoftBase {
 	return sb
 }
 
-func (sb *SoftBase) Start() error {
-	sb.RootCmd.AddCommand(cmd.Serve(sb))
+func (sb *SoftBase) Start(commands ...*cobra.Command) error {
+    for _, cmd := range commands {
+        sb.RootCmd.AddCommand(cmd)
+    }
 
 	return sb.Execute()
 }
 
 func (sb *SoftBase) Execute() error {
-
-	sb.DB = core.InitDB(3, "db.json")
+    // Create a new store with a degree of 2
 
 	done := make(chan bool, 1)
 
