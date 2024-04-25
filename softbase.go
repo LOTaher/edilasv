@@ -62,6 +62,8 @@ func (sb *SoftBase) Execute() error {
 	}()
 
 	<-done
+    
+    // core.SaveToDisk("store.db", core.Store.tree)
 
 	// TODO, add a graceful shutdown here
 	return nil
