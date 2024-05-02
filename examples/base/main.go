@@ -9,8 +9,16 @@ import (
 )
 
 func main() {
-	app := softbase.New()
-    db := core.NewStore(2)
+    var db *core.Store 
+
+    if softbase.HasDatabase() {
+        db = softbase.LoadDatabase()
+    } else {
+        db = core.NewStore(2)
+    }
+
+	app := softbase.New(db)
+    
 	// Serve Command
     serveCmd := cmd.Serve(db)
 

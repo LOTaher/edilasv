@@ -5,28 +5,39 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
-
+    
+    "github.com/LOTaher/softbase/core"
 	"github.com/spf13/cobra"
 )
 
 var Version = "0.0.1"
 
-// SoftBase defines a SoftBase application launcher.
 type SoftBase struct {
 	RootCmd *cobra.Command
+    DB *core.Store
 }
 
-// Creates a new SoftBase instance with the default configuration.
-func New() *SoftBase {
+func HasDatabase() bool {
+    _, err := os.Stat("softbase.gob")
+    return !os.IsNotExist(err)
+}
+
+func LoadDatabase() *core.Store {
+    db := core.NewStore(2)
+    db.LoadFromDisk("softbase.gob")
+    return db
+}
+
+func New(db *core.Store) *SoftBase {
 	sb := &SoftBase{
 		RootCmd: &cobra.Command{
 			Use:     filepath.Base(os.Args[0]),
 			Short:   "SoftBase is a key-value store backend for your next side project.",
 			Version: Version,
 		},
+        DB: db,
 	}
 
-	// hide the default help command, only allowing `--help` flag.
 	sb.RootCmd.SetHelpCommand(&cobra.Command{Hidden: true})
 
 	return sb
@@ -41,20 +52,21 @@ func (sb *SoftBase) Start(commands ...*cobra.Command) error {
 }
 
 func (sb *SoftBase) Execute() error {
-    // Create a new store with a degree of 2
 
 	done := make(chan bool, 1)
 
-	// listen for interrupt signal to gracefully shutdown the application
 	go func() {
 		sigch := make(chan os.Signal, 1)
 		signal.Notify(sigch, os.Interrupt, syscall.SIGTERM)
 		<-sigch
 
+        if err := sb.DB.SaveToDisk("softbase.gob"); err != nil {
+            panic(err)
+        }
+
 		done <- true
 	}()
 
-	// execute the root command
 	go func() {
 		sb.RootCmd.Execute()
 
@@ -63,8 +75,6 @@ func (sb *SoftBase) Execute() error {
 
 	<-done
     
-    // core.SaveToDisk("store.db", core.Store.tree)
-
 	// TODO, add a graceful shutdown here
 	return nil
 }
