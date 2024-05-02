@@ -4,17 +4,20 @@ BASE_DIR=./examples/base
 
 MAIN_DIR=$(BASE_DIR)/main.go
 
+ARGS=serve
+
 all: build
 
 build:
 	go build -o $(BINARY_NAME) $(MAIN_DIR)
 
 run: build
-	./$(BINARY_NAME)
+	./$(BINARY_NAME) $(ARGS)
 
 clean:
 	go clean
 	rm -f $(BINARY_NAME)
+	rm -f $(BINARY_NAME).gob
 
 help:
 	@echo "make build - build the binary"
