@@ -8,8 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// CrudAPIRoutes returns the routes for the CRUD API
-func CrudAPIRoutes(db *core.Store) chi.Router {
+func CrudRoutes(db *core.Store) chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(DatabaseMiddleware(db))
@@ -22,70 +21,87 @@ func CrudAPIRoutes(db *core.Store) chi.Router {
 	return r
 }
 
-// GetKVPair returns the value for a given key
 func GetKVPair(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	store := ctx.Value(StoreContextKey{}).(*core.Store)
-
-	var item core.Item
-	key := chi.URLParam(r, "key")
-	if key == "" {
-		w.WriteHeader(http.StatusBadRequest)
+	store, ok := ctx.Value(StoreContextKey).(*core.Store)
+	if !ok {
+        SendJSONResponse(w, http.StatusInternalServerError, "Store not configured", nil)
 		return
 	}
-	value, ok := store.Get(key)
-	if ok {
-		item = core.Item{Key: key, Value: value}
-		json.NewEncoder(w).Encode(item)
-		w.WriteHeader(http.StatusOK)
-	} else {
-		w.WriteHeader(http.StatusNotFound)
+
+	key := chi.URLParam(r, "key")
+	if key == "" {
+        SendJSONResponse(w, http.StatusBadRequest, "Key must be provided", nil)
+		return
 	}
+
+	value, found := store.Get(key)
+	if !found {
+        SendJSONResponse(w, http.StatusNotFound, "Key not found", nil)
+		return
+	}
+
+	item := core.Item{Key: key, Value: value}
+    SendJSONResponse(w, http.StatusOK, "Successfully retrieved key-value pair", item)
 }
 
-// CreateKVPair creates a new key-value pair
 func InsertKVPair(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	store := ctx.Value(StoreContextKey{}).(*core.Store)
+	store, ok := ctx.Value(StoreContextKey).(*core.Store)
+	if !ok {
+        SendJSONResponse(w, http.StatusInternalServerError, "Store not configured", nil)
+		return
+	}
 
 	var item core.Item
 	json.NewDecoder(r.Body).Decode(&item)
-
 	if item.Key == "" || item.Value == nil {
-		w.WriteHeader(http.StatusBadRequest)
+        SendJSONResponse(w, http.StatusBadRequest, "Key and value must be provided", nil)
 		return
 	}
 
 	store.Insert(item.Key, item.Value)
-	w.WriteHeader(http.StatusOK)
+    SendJSONResponse(w, http.StatusOK, "Successfully inserted key-value pair", nil)
 }
 
-// UpdateKVPair updates the value for a given key
 func UpdateKVPair(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	store := ctx.Value(StoreContextKey{}).(*core.Store)
+	store, ok := ctx.Value(StoreContextKey).(*core.Store)
+	if !ok {
+		http.Error(w, "Store not configured", http.StatusInternalServerError)
+		return
+	}
 
 	var item core.Item
 	json.NewDecoder(r.Body).Decode(&item)
 
 	if item.Key == "" || item.Value == nil {
-		w.WriteHeader(http.StatusBadRequest)
-	} else {
-		store.Update(item.Key, item.Value)
-		w.WriteHeader(http.StatusOK)
+        SendJSONResponse(w, http.StatusBadRequest, "Key and value must be provided", nil)
+		return
 	}
+
+    if _, found := store.Get(item.Key); !found {
+        SendJSONResponse(w, http.StatusNotFound, "Key not found", nil)
+        return
+    }
+
+	store.Update(item.Key, item.Value)
+    SendJSONResponse(w, http.StatusOK, "Successfully updated key-value pair", nil)
 }
 
-// DeleteKVPair deletes a key-value pair
 func DeleteKVPair(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	store := ctx.Value(StoreContextKey{}).(*core.Store)
+	store, ok := ctx.Value(StoreContextKey).(*core.Store)
+	if !ok {
+        SendJSONResponse(w, http.StatusInternalServerError, "Store not configured", nil)
+		return
+	}
 
 	key := chi.URLParam(r, "key")
 	if key == "" {
-		w.WriteHeader(http.StatusBadRequest)
+        SendJSONResponse(w, http.StatusBadRequest, "Key must be provided", nil)
 		return
 	}
 	store.Delete(key)
-	w.WriteHeader(http.StatusOK)
+    SendJSONResponse(w, http.StatusOK, "Successfully deleted key-value pair", nil)
 }
