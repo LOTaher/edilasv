@@ -5,8 +5,8 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
-    
-    "github.com/LOTaher/softbase/core"
+
+	"github.com/LOTaher/softbase/core"
 	"github.com/spf13/cobra"
 )
 
@@ -14,18 +14,18 @@ var Version = "0.0.1"
 
 type SoftBase struct {
 	RootCmd *cobra.Command
-    DB *core.Store
+	DB      *core.Store
 }
 
 func HasDatabase() bool {
-    _, err := os.Stat("softbase.gob")
-    return !os.IsNotExist(err)
+	_, err := os.Stat("softbase.gob")
+	return !os.IsNotExist(err)
 }
 
 func LoadDatabase() *core.Store {
-    db := core.NewStore(2)
-    db.LoadFromDisk("softbase.gob")
-    return db
+	db := core.NewStore(2)
+	db.LoadFromDisk("softbase.gob")
+	return db
 }
 
 func New(db *core.Store) *SoftBase {
@@ -35,7 +35,7 @@ func New(db *core.Store) *SoftBase {
 			Short:   "SoftBase is a key-value store backend for your next side project.",
 			Version: Version,
 		},
-        DB: db,
+		DB: db,
 	}
 
 	sb.RootCmd.SetHelpCommand(&cobra.Command{Hidden: true})
@@ -44,9 +44,9 @@ func New(db *core.Store) *SoftBase {
 }
 
 func (sb *SoftBase) Start(commands ...*cobra.Command) error {
-    for _, cmd := range commands {
-        sb.RootCmd.AddCommand(cmd)
-    }
+	for _, cmd := range commands {
+		sb.RootCmd.AddCommand(cmd)
+	}
 
 	return sb.Execute()
 }
@@ -60,9 +60,9 @@ func (sb *SoftBase) Execute() error {
 		signal.Notify(sigch, os.Interrupt, syscall.SIGTERM)
 		<-sigch
 
-        if err := sb.DB.SaveToDisk("softbase.gob"); err != nil {
-            panic(err)
-        }
+		if err := sb.DB.SaveToDisk("softbase.gob"); err != nil {
+			panic(err)
+		}
 
 		done <- true
 	}()
@@ -74,7 +74,7 @@ func (sb *SoftBase) Execute() error {
 	}()
 
 	<-done
-    
+
 	// TODO, add a graceful shutdown here
 	return nil
 }

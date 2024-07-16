@@ -7,12 +7,19 @@ import (
 
 	"github.com/fatih/color"
     "github.com/LOTaher/softbase/core"
-	// "github.com/go-chi/cors"
 )
 
 type ServeConfig struct {
+    // AllowedOrigins is an optional list of CORS origins (default: "*")
 	AllowedOrigins []string
+
+    // HttpAddr is the address to listen on for HTTP requests (eg. `127.0.0.1:1404`)
 	HttpAddr       string
+
+    // HttpsAddr is the address to listen on for HTTPS requests (eg. `127.0.0.1:443`)
+    HttpsAddr      string
+
+    // DB is the database store
 	DB             *core.Store
 }
 
@@ -22,23 +29,23 @@ func Serve(config ServeConfig) (*http.Server, error) {
 	}
 
 	schema := "http"
+    if config.HttpsAddr != "" {
+        schema = "https"
+    }
 
-	router, err := InitAPI(config.DB)
+    mainAddr := config.HttpAddr
+    if config.HttpsAddr != "" {
+        mainAddr = config.HttpsAddr
+    }
+
+    // initialize the API
+	router, err := InitAPI(config.DB, config)
 	if err != nil {
 		return nil, err
 	}
-	//
-	// router.Use(cors.Handler(cors.Options{
-	// 	AllowedOrigins: config.AllowedOrigins,
-	// 	AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-	// 	AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-	// 	ExposedHeaders:   []string{"Link"},
-	// 	AllowCredentials: false,
-	// 	MaxAge:           300,
-	// }))
 
 	server := &http.Server{
-		Addr:    config.HttpAddr,
+		Addr:    mainAddr,
 		Handler: router,
 	}
 

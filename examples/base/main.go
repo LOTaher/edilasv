@@ -5,22 +5,21 @@ import (
 
 	"github.com/LOTaher/softbase"
 	"github.com/LOTaher/softbase/cmd"
-    "github.com/LOTaher/softbase/core"
+	"github.com/LOTaher/softbase/core"
 )
 
 func main() {
-    var db *core.Store 
+	var db *core.Store
 
-    if softbase.HasDatabase() {
-        db = softbase.LoadDatabase()
-    } else {
-        db = core.NewStore(2)
-    }
+	if softbase.HasDatabase() {
+		db = softbase.LoadDatabase()
+	} else {
+		db = core.NewStore(2)
+	}
 
 	app := softbase.New(db)
-    
-	// Serve Command
-    serveCmd := cmd.Serve(db)
+
+	serveCmd := cmd.Serve(db)
 
 	if err := app.Start(serveCmd); err != nil {
 		log.Fatal(err)

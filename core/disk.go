@@ -11,6 +11,7 @@ import (
 
 func init() {
     gob.Register(Item{})
+    gob.Register(map[string]interface{}{})
 }
 
 func serializeItemIterator(enc *gob.Encoder) btree.ItemIterator {
@@ -53,11 +54,11 @@ func (s *Store) LoadFromDisk(filename string) error {
         err = dec.Decode(&item)
         if err != nil {
             if err == io.EOF {
-                break 
+                break
             }
-            return err 
+            return err
         }
-        s.tree.ReplaceOrInsert(item) 
+        s.tree.ReplaceOrInsert(item)
     }
     return nil
 }

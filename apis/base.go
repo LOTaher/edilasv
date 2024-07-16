@@ -6,13 +6,10 @@ import (
 
 	"github.com/LOTaher/softbase/core"
 	"github.com/go-chi/chi/v5"
+    "github.com/go-chi/cors"
 )
 
-type Response struct {
-    Status int `json:"status"`
-    Message string `json:"message"`
-}
-
+// the endpoint response function
 func SendJSONResponse(w http.ResponseWriter, status int, message string, data interface{}) {
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(status)
@@ -32,13 +29,22 @@ func SendJSONResponse(w http.ResponseWriter, status int, message string, data in
     }
 }
 
-func InitAPI(db *core.Store) (*chi.Mux, error) {
+func InitAPI(db *core.Store, config ServeConfig) (*chi.Mux, error) {
 	r := chi.NewRouter()
 
-	// Middlewares
-    // ...
+	// global middleware
+    // cors configuration
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins: config.AllowedOrigins,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	}))
 
-	// Routes
+	// routes
+    // the record CRUD api
 	r.Mount("/api", CrudRoutes(db))
 
 	return r, nil

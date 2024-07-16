@@ -54,3 +54,20 @@ func (s *Store) Update(Key string, Value interface{}) {
 	s.Delete(Key)
 	s.Insert(Key, Value)
 }
+
+func (s *Store) Has(Key string) bool {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    return s.tree.Has(Item{Key: Key})
+}
+
+func (s *Store) GetAll() []Item {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    var items []Item
+    s.tree.Ascend(func(i btree.Item) bool {
+        items = append(items, i.(Item))
+        return true
+    })
+    return items
+}

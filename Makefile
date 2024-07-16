@@ -14,6 +14,9 @@ build:
 run: build
 	./$(BINARY_NAME) $(ARGS)
 
+serve:
+	make build && make run
+
 clean:
 	go clean
 	rm -f $(BINARY_NAME)

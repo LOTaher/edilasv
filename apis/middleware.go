@@ -7,8 +7,7 @@ import (
     "github.com/LOTaher/softbase/core"
 )
 
-// Middleware for passing the database store across handlers
-
+// middleware for passing the database store across handlers
 type storeContextKey struct {}
 
 var StoreContextKey = storeContextKey{}
