@@ -11,7 +11,7 @@ all: build
 build:
 	go build -o $(BINARY_NAME) $(MAIN_DIR)
 
-run: build
+run:
 	./$(BINARY_NAME) $(ARGS)
 
 serve:
