@@ -17,9 +17,10 @@ func CrudRoutes(db *core.Store) chi.Router {
     // routes
     r.Post("/create", CreateKVPair)
 	r.Get("/read/{key}", ReadKVPair)
-    r.Get("/read", GetAllKVPair)
+    r.Get("/read", ReadAllKVPair)
 	r.Put("/update", UpdateKVPair)
 	r.Delete("/delete/{key}", DeleteKVPair)
+	r.Delete("/delete", DeleteAllKVPair)
 
 	return r
 }
@@ -120,7 +121,7 @@ func DeleteKVPair(w http.ResponseWriter, r *http.Request) {
     SendJSONResponse(w, http.StatusOK, "successfully deleted key-value pair", nil)
 }
 
-func GetAllKVPair(w http.ResponseWriter, r *http.Request) {
+func ReadAllKVPair(w http.ResponseWriter, r *http.Request) {
     ctx := r.Context()
     store, ok := ctx.Value(StoreContextKey).(*core.Store)
     if !ok {
@@ -135,4 +136,20 @@ func GetAllKVPair(w http.ResponseWriter, r *http.Request) {
     }
 
     SendJSONResponse(w, http.StatusOK, "successfully read all key-value pairs", items)
+}
+
+func DeleteAllKVPair(w http.ResponseWriter, r *http.Request) {
+    ctx := r.Context()
+    store, ok := ctx.Value(StoreContextKey).(*core.Store)
+    if !ok {
+        SendJSONResponse(w, http.StatusInternalServerError, "store not configured", nil)
+        return
+    }
+
+    allItems := store.GetAll()
+    for _, item := range allItems {
+        store.Delete(item.Key)
+    }
+
+    SendJSONResponse(w, http.StatusOK, "successfully deleted all key-value pairs", nil)
 }
