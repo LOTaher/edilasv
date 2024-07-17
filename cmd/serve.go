@@ -34,8 +34,9 @@ func Serve(db *core.Store) *cobra.Command {
 			_, err := apis.Serve(apis.ServeConfig{
 				AllowedOrigins: allowedOrigins,
 				HttpAddr:       httpAddr,
-                HttpsAddr:      httpsAddr,
+				HttpsAddr:      httpsAddr,
 				DB:             db,
+				Key:            core.GenerateKey(),
 			})
 			if err != nil {
 				return err

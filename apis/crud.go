@@ -8,11 +8,8 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func CrudRoutes(db *core.Store) chi.Router {
+func CrudRoutes() chi.Router {
 	r := chi.NewRouter()
-
-    // middleware
-	r.Use(DatabaseMiddleware(db))
 
     // routes
     r.Post("/create", CreateKVPair)

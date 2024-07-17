@@ -20,3 +20,17 @@ func DatabaseMiddleware(store *core.Store) func(http.Handler) http.Handler {
         })
     }
 }
+
+// middleware for validating the API key
+func KeyMiddleware(validKey string) func(http.Handler) http.Handler {
+    return func(next http.Handler) http.Handler {
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+            key := r.Header.Get("X-API-Key")
+            if key == "" || key != validKey {
+                http.Error(w, "Forbidden", http.StatusForbidden)
+                return
+            }
+            next.ServeHTTP(w, r)
+        })
+    }
+}
